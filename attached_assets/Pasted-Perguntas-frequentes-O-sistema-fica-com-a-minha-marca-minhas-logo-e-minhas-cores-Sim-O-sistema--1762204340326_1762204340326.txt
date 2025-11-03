@@ -1,0 +1,68 @@
+Perguntas frequentes
+O sistema fica com a minha marca, minhas logo e minhas cores?
+Sim! O sistema vai ficar com seu domínio e toda sua marca, o sistema será seu.
+
+Como funciona com os pagamentos do Asaas?
+Você deve criar uma conta no asaas e aprovar, então nós vamos configurar a sua conta no sistema e todo pagamento de mensalidade que o cliente pagar irá para a sua conta direto.
+
+Quais são as formas de pagamento pelo cliente?
+Atualmente apenas cartão de crédito para evitar a inadimplência
+
+Posso hospedar o sistema na minha hospedagem?
+Sim! Porém precisa de um vps, não server hospedagem compartilhada como hostinger, hostgator e outras, precisa de um vps.
+
+Tenho acesso ao código para alterações?
+Não, o acesso ao código é bloqueado e ofuscado para evitar pirataria.
+
+Como funciona o suporte e atualizações?
+Nós vamos prestar suporte no sistema garantindo que o sistema fique sempre online com backup diário, correções de erro.
+
+Posso solicitar novas funções?
+Sim! Você pode solicitar novas funções no sistema sem pagar a mais por isso, porém elas irão entrar na fila de desenvolvimento.
+
+Quanto eu preciso pagar para ter acesso ao sistema?
+Você vai pagar apenas a assinatura mensal de R$ 297,00 no cartão.
+
+Vou ter acesso aos sistemas que forem lançados?
+Sim! Em breve vamos lançar o sistema completo de imobiliária com agente de atendimento que irá mostrar os imóveis e qualificar os leads passando para o correto.
+
+Posso sugerir novos sistemas?
+Sim! Pode nos dar sugestão de sistemas para desenvolvermos.
+
+Quais as tecnologias que o sistema foi feito?
+Front end - react
+Back end - node com express
+Banco - Mysql
+API - node 
+
+O sistema tem app mobile para os profissionais?
+Ainda não mas está no roadmap
+
+Posso revender o sistema para quantos clientes quiser?
+Sim! Você pode cadastrar e vender para quantos clientes quiser. Não há limite de usuários ou empresas ativas.
+
+Posso definir meus próprios preços e planos?
+Sim! Você tem total liberdade para definir o valor dos planos e criar sua estratégia comercial.
+
+Posso cancelar quando quiser?
+Sim! O cancelamento pode ser feito a qualquer momento, sem multa ou fidelidade.
+
+Há algum custo de setup ou taxa inicial?
+Não! Você paga apenas a mensalidade de R$ 297,00 — sem taxa de ativação.
+
+O sistema é white label?
+Sim! Ele é totalmente white label. O cliente nunca verá o nome da nossa empresa, apenas o da sua marca.
+
+Vocês fornecem algum material de vendas ou treinamento?
+Sim! Após ativar sua licença, você recebe vídeos de demonstração e para apresentar o sistema aos seus clientes.
+
+Qual o prazo para entrega após o pagamento?
+Em até 48 horas o seu sistema é entregue com sua marca, cores e domínio configurado. Necessário domínio no cloudflare.
+
+Posso usar meu próprio domínio personalizado (ex: sistema.minhamarca.com)?
+Sim! Nós configuramos o sistema para o domínio que você escolher.
+
+Vocês oferecem a evolution para meus clientes?
+Sim! Oferecemos também a evolution para usar no sistema
+
+Fornecemos lista das empresas de todo o brasil com o celular do proprietário para você prospectar.
