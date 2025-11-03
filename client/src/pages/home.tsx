@@ -290,32 +290,92 @@ export default function Home() {
             <Accordion type="single" collapsible className="space-y-4">
               {[
                 {
-                  q: "O sistema fica com minha marca e domínio?",
-                  a: "Sim! O sistema é 100% seu, com domínio, logo e cores personalizadas.",
+                  q: "O sistema fica com a minha marca, minhas logo e minhas cores?",
+                  a: "Sim! O sistema vai ficar com seu domínio e toda sua marca, o sistema será seu.",
                 },
                 {
-                  q: "Como funcionam os pagamentos pelo Asaas?",
-                  a: "Você cria sua conta e nós integramos ao sistema. Todo pagamento vai direto para a sua conta.",
+                  q: "Como funciona com os pagamentos do Asaas?",
+                  a: "Você deve criar uma conta no asaas e aprovar, então nós vamos configurar a sua conta no sistema e todo pagamento de mensalidade que o cliente pagar irá para a sua conta direto.",
                 },
                 {
-                  q: "Posso hospedar por conta própria?",
-                  a: "Sim, desde que use um servidor VPS. Hospedagens compartilhadas não são recomendadas.",
+                  q: "Quais são as formas de pagamento pelo cliente?",
+                  a: "Atualmente apenas cartão de crédito para evitar a inadimplência.",
                 },
                 {
-                  q: "Tenho acesso ao código-fonte?",
-                  a: "Não. O código é protegido para evitar pirataria e manter a segurança.",
+                  q: "Posso hospedar o sistema na minha hospedagem?",
+                  a: "Sim! Porém precisa de um vps, não serve hospedagem compartilhada como hostinger, hostgator e outras, precisa de um vps.",
                 },
                 {
-                  q: "Posso sugerir novas funções?",
-                  a: "Sim! As sugestões entram no roadmap de desenvolvimento.",
+                  q: "Tenho acesso ao código para alterações?",
+                  a: "Não, o acesso ao código é bloqueado e ofuscado para evitar pirataria.",
+                },
+                {
+                  q: "Como funciona o suporte e atualizações?",
+                  a: "Nós vamos prestar suporte no sistema garantindo que o sistema fique sempre online com backup diário, correções de erro.",
+                },
+                {
+                  q: "Posso solicitar novas funções?",
+                  a: "Sim! Você pode solicitar novas funções no sistema sem pagar a mais por isso, porém elas irão entrar na fila de desenvolvimento.",
+                },
+                {
+                  q: "Quanto eu preciso pagar para ter acesso ao sistema?",
+                  a: "Você vai pagar apenas a assinatura mensal de R$ 297,00 no cartão.",
+                },
+                {
+                  q: "Vou ter acesso aos sistemas que forem lançados?",
+                  a: "Sim! Em breve vamos lançar o sistema completo de imobiliária com agente de atendimento que irá mostrar os imóveis e qualificar os leads passando para o corretor.",
+                },
+                {
+                  q: "Posso sugerir novos sistemas?",
+                  a: "Sim! Pode nos dar sugestão de sistemas para desenvolvermos.",
+                },
+                {
+                  q: "Quais as tecnologias que o sistema foi feito?",
+                  a: "Front end - React, Back end - Node com Express, Banco - MySQL, API - Node.",
+                },
+                {
+                  q: "O sistema tem app mobile para os profissionais?",
+                  a: "Ainda não mas está no roadmap.",
+                },
+                {
+                  q: "Posso revender o sistema para quantos clientes quiser?",
+                  a: "Sim! Você pode cadastrar e vender para quantos clientes quiser. Não há limite de usuários ou empresas ativas.",
+                },
+                {
+                  q: "Posso definir meus próprios preços e planos?",
+                  a: "Sim! Você tem total liberdade para definir o valor dos planos e criar sua estratégia comercial.",
                 },
                 {
                   q: "Posso cancelar quando quiser?",
-                  a: "Sim! Sem multa e sem fidelidade.",
+                  a: "Sim! O cancelamento pode ser feito a qualquer momento, sem multa ou fidelidade.",
                 },
                 {
-                  q: "Há taxa de setup?",
-                  a: "Não. Apenas a mensalidade.",
+                  q: "Há algum custo de setup ou taxa inicial?",
+                  a: "Não! Você paga apenas a mensalidade de R$ 297,00 — sem taxa de ativação.",
+                },
+                {
+                  q: "O sistema é white label?",
+                  a: "Sim! Ele é totalmente white label. O cliente nunca verá o nome da nossa empresa, apenas o da sua marca.",
+                },
+                {
+                  q: "Vocês fornecem algum material de vendas ou treinamento?",
+                  a: "Sim! Após ativar sua licença, você recebe vídeos de demonstração para apresentar o sistema aos seus clientes.",
+                },
+                {
+                  q: "Qual o prazo para entrega após o pagamento?",
+                  a: "Em até 48 horas o seu sistema é entregue com sua marca, cores e domínio configurado. Necessário domínio no Cloudflare.",
+                },
+                {
+                  q: "Posso usar meu próprio domínio personalizado (ex: sistema.minhamarca.com)?",
+                  a: "Sim! Nós configuramos o sistema para o domínio que você escolher.",
+                },
+                {
+                  q: "Vocês oferecem a Evolution para meus clientes?",
+                  a: "Sim! Oferecemos também a Evolution para usar no sistema.",
+                },
+                {
+                  q: "Vocês fornecem lista de empresas para prospecção?",
+                  a: "Sim! Fornecemos lista das empresas de todo o Brasil com o celular do proprietário para você prospectar.",
                 },
               ].map((faq, idx) => (
                 <AccordionItem key={idx} value={`item-${idx}`} className="border-2 border-border rounded-lg px-6 bg-card" data-testid={`accordion-item-${idx}`}>
