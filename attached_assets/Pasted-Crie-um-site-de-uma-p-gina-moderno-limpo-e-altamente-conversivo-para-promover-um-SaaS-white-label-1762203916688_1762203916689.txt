@@ -1,0 +1,157 @@
+Crie um site de uma página, moderno, limpo e altamente conversivo, para promover um SaaS white label onde o usuário assina e revende o sistema com a própria marca.
+
+O público-alvo são desenvolvedores, freelancers e empreendedores digitais que desejam faturar com um SaaS pronto, sem precisar programar.
+
+Use cores em degradê azul e roxo, ícones minimalistas, textos curtos e convincentes, e botões arredondados.
+O tom deve ser profissional, empolgante e direto.
+
+🦸‍♂️ Hero Section
+
+Título:
+Tenha seu próprio SaaS agora mesmo 🚀
+
+Subtítulo:
+Receba um sistema pronto, 100% com a sua marca, para revender e faturar como se fosse seu!
+
+Texto de apoio:
+Transforme sua ideia em um negócio SaaS real, sem precisar programar nada.
+Você recebe o sistema completo, com sua marca, domínio e integração de pagamentos via Asaas — pronto para revender e lucrar.
+
+Botão principal (CTA):
+👉 Quero meu SaaS agora
+
+⚙️ Como funciona
+
+Título: Como funciona na prática
+
+Descrição:
+É simples, rápido e sem complicação. Veja como você terá o seu próprio SaaS rodando em até 48 horas:
+
+1️⃣ Você faz sua assinatura mensal pelo Asaas no valor de R$ 297,00.
+2️⃣ Nos envia o seu domínio, e nós configuramos tudo na Cloudflare.
+3️⃣ Criamos sua conta em nossos servidores (utilizamos Hostinger Brasil).
+4️⃣ Em até 48 horas, você recebe o acesso ao painel administrativo do sistema.
+5️⃣ Dentro do painel, você personaliza logo, cores, nome do sistema e site.
+6️⃣ A partir daí, sua função é apenas vender e ficar com 100% do lucro, cobrando diretamente no seu Asaas.
+
+💡 O que está incluso:
+
+Infraestrutura completa (hospedagem, Cloudflare e backups a cada 2h).
+
+Monitoramento do servidor 24h.
+
+Suporte via WhatsApp (texto), de segunda a sexta, das 09h às 22h.
+
+Painel administrativo completo.
+
+Painel exclusivo para salão e barbearia.
+
+Acesso profissional otimizado para celular.
+
+Site para divulgação com rastreio de Google e Meta.
+
+Integração com Evolution, permitindo conectar números ilimitados para agentes responderem.
+
+Sistema 100% ilimitado — você pode vender quantas assinaturas quiser, no preço que quiser.
+
+Solicitação de novas funções incluída (entra no roadmap de desenvolvimento).
+
+Desconto em novos SaaS lançados (como o imobiliário, já em 80% de conclusão).
+
+Tudo isso em um único valor mensal. Você foca nas vendas — nós cuidamos de toda a estrutura.
+
+Botão secundário:
+🚀 Quero começar agora
+
+💎 Benefícios
+
+Título: Por que vale a pena?
+
+Cards de benefícios:
+💼 100% White Label — Seu cliente só vê a sua marca.
+💰 Lucro recorrente — Cobranças automáticas direto no seu Asaas.
+⚙️ Zero código — Tudo pronto e configurado.
+📈 Escalável — Venda ilimitada de assinaturas.
+🧩 Suporte e atualizações incluídos — Você não se preocupa com nada técnico.
+⚡ Entrega rápida — Seu sistema ativo em até 48h.
+
+📦 O que está incluído
+
+Título: O que você recebe na assinatura
+
+Lista:
+
+Sistema SaaS completo e pronto para uso
+
+Personalização total de marca, logo, cores e domínio
+
+Integração com Asaas
+
+Hospedagem segura e monitoramento 24h
+
+Backups automáticos a cada 2 horas
+
+Suporte via WhatsApp
+
+Painel administrativo e profissional
+
+Site de divulgação integrado com Google e Meta
+
+Evolution para conexão de números ilimitados
+
+Atualizações contínuas e melhorias
+
+❓ Perguntas frequentes
+
+Título: Dúvidas mais comuns
+
+Perguntas e respostas:
+
+O sistema fica com minha marca e domínio?
+Sim! O sistema é 100% seu, com domínio, logo e cores personalizadas.
+
+Como funcionam os pagamentos pelo Asaas?
+Você cria sua conta e nós integramos ao sistema. Todo pagamento vai direto para a sua conta.
+
+Posso hospedar por conta própria?
+Sim, desde que use um servidor VPS. Hospedagens compartilhadas não são recomendadas.
+
+Tenho acesso ao código-fonte?
+Não. O código é protegido para evitar pirataria e manter a segurança.
+
+Posso sugerir novas funções?
+Sim! As sugestões entram no roadmap de desenvolvimento.
+
+Posso cancelar quando quiser?
+Sim! Sem multa e sem fidelidade.
+
+Há taxa de setup?
+Não. Apenas a mensalidade.
+
+💰 Preço mensal
+
+Título: Comece hoje por apenas
+Preço: R$ 297,00/mês
+
+Texto de apoio:
+Sem taxa de ativação.
+Sem limite de clientes.
+Sem fidelidade.
+Cancele quando quiser.
+
+Botão CTA:
+💡 Quero meu SaaS agora
+
+🎨 Estilo visual sugerido
+
+Fundo branco com gradiente azul/roxo
+
+Tipografia moderna (Inter, Poppins ou Nunito)
+
+Ícones vetoriais simples e coloridos
+
+Layout fluido, com seções separadas por contraste leve
+
+Animações sutis ao rolar (fade ou slide-up)
+
+Destaque no CTA principal em toda a página
