@@ -280,6 +280,69 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="py-16 md:py-24 bg-gradient-to-br from-blue-50 to-purple-50">
+        <div className="container mx-auto px-6">
+          <motion.div {...fadeInUp} className="max-w-4xl mx-auto text-center mb-16">
+            <h2 className="text-4xl font-bold mb-6 text-foreground" data-testid="text-section-title-videos">Veja o Sistema em Ação</h2>
+            <p className="text-lg text-muted-foreground" data-testid="text-section-description-videos">
+              Confira nossos vídeos de demonstração e veja como é fácil gerenciar seu SaaS white label
+            </p>
+          </motion.div>
+
+          <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+            <motion.div {...fadeInUp} transition={{ delay: 0.1, duration: 0.5 }}>
+              <Card className="overflow-hidden hover-elevate border-2 border-border" data-testid="card-video-1">
+                <CardContent className="p-0">
+                  <div className="aspect-video bg-gradient-to-br from-gray-900 to-gray-800 relative">
+                    <iframe
+                      className="w-full h-full"
+                      src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+                      title="Demonstração do Sistema - Parte 1"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      data-testid="iframe-video-1"
+                    ></iframe>
+                  </div>
+                  <div className="p-6">
+                    <h3 className="text-xl font-semibold mb-2 text-foreground" data-testid="text-video-title-1">
+                      Demonstração Completa do Sistema
+                    </h3>
+                    <p className="text-base text-muted-foreground" data-testid="text-video-description-1">
+                      Veja todas as funcionalidades do painel administrativo e como personalizar sua marca.
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            <motion.div {...fadeInUp} transition={{ delay: 0.2, duration: 0.5 }}>
+              <Card className="overflow-hidden hover-elevate border-2 border-border" data-testid="card-video-2">
+                <CardContent className="p-0">
+                  <div className="aspect-video bg-gradient-to-br from-gray-900 to-gray-800 relative">
+                    <iframe
+                      className="w-full h-full"
+                      src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+                      title="Demonstração do Sistema - Parte 2"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      data-testid="iframe-video-2"
+                    ></iframe>
+                  </div>
+                  <div className="p-6">
+                    <h3 className="text-xl font-semibold mb-2 text-foreground" data-testid="text-video-title-2">
+                      Como Configurar e Vender
+                    </h3>
+                    <p className="text-base text-muted-foreground" data-testid="text-video-description-2">
+                      Aprenda a configurar seu domínio, definir preços e começar a vender hoje mesmo.
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
       <section className="py-16 md:py-24 bg-white">
         <div className="container mx-auto px-6">
           <motion.div {...fadeInUp} className="max-w-4xl mx-auto text-center mb-16">
