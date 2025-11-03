@@ -2,9 +2,19 @@
 
 ## Overview
 
-This is a single-page marketing website for a white label SaaS platform. The platform allows users to subscribe and resell a salon/barbershop management system under their own brand. The target audience consists of developers, freelancers, and digital entrepreneurs who want to profit from a ready-made SaaS solution without programming.
+This is a white label SaaS platform with a conversion-focused marketing landing page and a complete MySQL-based authentication and user management system. The platform allows users to subscribe and resell a salon/barbershop management system under their own brand. The target audience consists of developers, freelancers, and digital entrepreneurs who want to profit from a ready-made SaaS solution without programming.
 
-The application features a conversion-focused landing page with hero section, process explanation, feature lists, and FAQ accordion, built with modern web technologies and designed for high conversion rates.
+The application features:
+- **Public Landing Page**: Hero section, process explanation, feature lists, FAQ accordion, and conversion-optimized design
+- **Authentication System**: Secure login with bcrypt password hashing and persistent MySQL sessions
+- **Admin Dashboard**: User management interface with CRUD operations, role-based access control, and sidebar navigation
+
+Recent Changes (November 2025):
+- Implemented complete MySQL authentication system with express-session
+- Created admin dashboard with user management (create, read, delete users)
+- Added role-based access control (admin/user roles)
+- Configured production-ready session management with MySQL store
+- Applied security hardening: required SESSION_SECRET, trust proxy configuration, secure cookies
 
 ## User Preferences
 
@@ -16,7 +26,11 @@ Preferred communication style: Simple, everyday language.
 
 **Framework**: React 18+ with TypeScript, using Vite as the build tool and development server.
 
-**Routing**: Wouter - A lightweight client-side routing library for single-page applications. The router is configured in `client/src/App.tsx` with routes for the home page and a 404 fallback.
+**Routing**: Wouter - A lightweight client-side routing library for single-page applications. The router is configured in `client/src/App.tsx` with routes for:
+- `/` - Public landing page
+- `/login` - Authentication page with email/password form
+- `/dashboard` - Admin dashboard with user management (protected route)
+- `404` - Not found fallback page
 
 **UI Component System**: shadcn/ui with Radix UI primitives. The application uses a comprehensive component library built on Radix UI headless components, styled with Tailwind CSS using the "New York" style variant. Components are located in `client/src/components/ui/`.
 
@@ -24,31 +38,91 @@ Preferred communication style: Simple, everyday language.
 
 **Animation**: Framer Motion is used for scroll-triggered animations and micro-interactions, particularly in the home page component (`fadeInUp` animations).
 
-**State Management**: TanStack Query (React Query) for server state management. The query client is configured with specific defaults including disabled automatic refetching and infinite stale time, suggesting a primarily static content website.
+**State Management**: TanStack Query (React Query) for server state management. The query client is configured with:
+- Custom fetcher function that handles authentication (credentials: "include")
+- Graceful handling of 401 unauthorized responses (returns null)
+- Disabled automatic refetching for static content
+- Optimistic updates for user CRUD operations
 
-**Form Handling**: React Hook Form with Zod validation via `@hookform/resolvers`, though no forms are currently implemented in the visible pages.
+**Form Handling**: React Hook Form with Zod validation via `@hookform/resolvers` for:
+- Login form: email and password validation
+- User creation form: name (min 2 chars), email validation, password (min 6 chars), role selection
 
 ### Backend Architecture
 
-**Server Framework**: Express.js running on Node.js with TypeScript. The server is configured in `server/index.ts` with middleware for JSON parsing, URL encoding, and request logging.
+**Server Framework**: Express.js running on Node.js with TypeScript. The server is configured in `server/index.ts` with middleware for:
+- JSON parsing and URL encoding
+- Express-session with MySQL store for persistent sessions
+- Trust proxy configuration for secure cookies behind reverse proxies
+- Request logging for API routes
+- CORS and credentials handling
+
+**Session Management**: Production-ready session configuration:
+- MySQL-backed session store using `express-mysql-session`
+- Required SESSION_SECRET environment variable (fails fast if missing)
+- Secure cookies: httpOnly, sameSite (strict in production), 7-day expiration
+- Trust proxy enabled for HTTPS deployments behind reverse proxies
+- Automatic session table creation in MySQL database
+- Sessions persist across server restarts
 
 **Development Setup**: Vite is integrated as middleware in development mode for hot module replacement and serves the React frontend. In production, the build generates static files that are served by Express.
 
-**API Structure**: The routes are registered through `server/routes.ts`, though the file currently contains no implemented endpoints. The architecture is prepared for RESTful API endpoints with the `/api` prefix convention.
+**API Structure**: RESTful API endpoints registered through `server/routes.ts`:
+- **Authentication Routes**:
+  - `POST /api/auth/login` - Authenticate user with email/password
+  - `POST /api/auth/logout` - Destroy session and logout
+  - `GET /api/auth/me` - Get current authenticated user
+- **User Management Routes** (admin only):
+  - `GET /api/users` - List all users
+  - `POST /api/users` - Create new user
+  - `DELETE /api/users/:id` - Delete user by ID
 
-**Data Storage**: The application uses an in-memory storage implementation (`MemStorage` class in `server/storage.ts`) with a defined interface for CRUD operations. This is designed to be replaced with a persistent database solution.
+**Authentication Middleware**: 
+- `requireAuth` - Validates session and loads user data
+- `requireAdmin` - Ensures user has admin role
+- Both middlewares use TypeScript declaration merging to extend Express Request with user object
 
-**Type Safety**: Shared types between frontend and backend are defined in `shared/schema.ts` using Drizzle ORM schema definitions and Zod for runtime validation.
+**Type Safety**: Shared types between frontend and backend are defined in `shared/schema.ts` using Drizzle ORM schema definitions and Zod for runtime validation:
+- `User` - Database user model
+- `InsertUser` - User creation schema with validation
+- `LoginCredentials` - Login form validation schema
 
 ### Database Design
 
-**ORM**: Drizzle ORM configured for PostgreSQL dialect. The configuration (`drizzle.config.ts`) expects a `DATABASE_URL` environment variable and uses the Neon serverless Postgres driver (`@neondatabase/serverless`).
+**Database**: MySQL 8.0+ running on remote server (31.97.91.252)
 
-**Schema Location**: `shared/schema.ts` contains the database schema definitions, currently including a `users` table with UUID primary keys, username, and password fields.
+**ORM**: Drizzle ORM configured for MySQL dialect using `mysql2/promise` driver for connection pooling and async operations.
 
-**Migration Strategy**: Drizzle Kit is configured for schema migrations with output to the `migrations/` directory. The `db:push` script is available for pushing schema changes.
+**Connection Management**: Singleton pattern with `getDb()` function that creates and reuses database connection instance.
 
-**Current State**: The database integration is prepared but not actively used. The in-memory storage implementation suggests the database will be added as the application evolves beyond the static landing page.
+**Schema Location**: `shared/schema.ts` contains the database schema definitions:
+
+**Tables**:
+1. **users** - Application users with authentication
+   - `id` (INT, auto-increment primary key)
+   - `name` (VARCHAR 255, not null)
+   - `email` (VARCHAR 255, unique, not null)
+   - `password` (VARCHAR 255, bcrypt hashed, not null)
+   - `role` (VARCHAR 50, default 'user', values: 'user' or 'admin')
+   - `createdAt` (TIMESTAMP, default CURRENT_TIMESTAMP)
+
+2. **sessions** - Express session storage (auto-created by express-mysql-session)
+   - `session_id` (VARCHAR, primary key)
+   - `expires` (TIMESTAMP)
+   - `data` (JSON)
+
+**Security**:
+- Passwords hashed with bcrypt (cost factor 10)
+- Session data encrypted in database
+- SQL injection prevention via parameterized queries through Drizzle ORM
+- Database credentials stored in environment variables
+
+**Initialization**: Script `server/init-db.ts` creates tables and seeds default admin user:
+- Email: admin@sistema.com
+- Password: admin123 (bcrypt hashed)
+- Role: admin
+
+**Migration Strategy**: Currently using manual SQL schema creation. Drizzle Kit configured for future migrations to `migrations/` directory.
 
 ### Design System Decisions
 
@@ -95,3 +169,61 @@ Preferred communication style: Simple, everyday language.
 **Animation**: Framer Motion for declarative animations with viewport-triggered effects.
 
 **Developer Experience**: Replit-specific Vite plugins provide runtime error modals, code cartography, and development banners when running in Replit environment.
+
+## Authentication & Authorization
+
+### User Roles
+- **Admin**: Full access to user management dashboard, can create and delete users
+- **User**: Standard user role (placeholder for future features)
+
+### Authentication Flow
+1. User submits login form with email and password
+2. Backend validates credentials against MySQL database
+3. On success, creates session in MySQL sessions table
+4. Session cookie sent to client (secure, httpOnly, sameSite)
+5. Subsequent requests include session cookie for authentication
+6. Dashboard checks authentication on mount via `/api/auth/me`
+7. Unauthenticated users redirected to login page
+
+### Protected Routes
+- Dashboard requires authentication (checks session via React Query)
+- User management API endpoints require admin role
+- Redirects happen in useEffect to prevent render-time side effects
+
+### Password Security
+- Passwords hashed with bcrypt before storage
+- Plain text passwords never stored in database
+- Hash verification on login without exposing hashes to client
+
+## Environment Variables
+
+Required environment variables:
+- `SESSION_SECRET` - Required. Cryptographically random string for session signing. Application fails to start if not set.
+- `MYSQL_HOST` - MySQL server hostname
+- `MYSQL_PORT` - MySQL server port (default: 3306)
+- `MYSQL_USER` - MySQL username
+- `MYSQL_PASSWORD` - MySQL password
+- `MYSQL_DATABASE` - MySQL database name
+
+## Production Deployment Notes
+
+### Security Checklist
+- ✅ SESSION_SECRET is set to a strong random value
+- ✅ MySQL credentials are properly secured
+- ✅ Trust proxy enabled for HTTPS reverse proxies
+- ✅ Secure cookies enabled in production
+- ✅ Sessions persist in database (not memory)
+- ✅ CSRF protection via sameSite cookies
+- ✅ Password hashing with bcrypt
+
+### Recommended Improvements for Production
+1. Implement CSRF tokens for non-sameSite contexts
+2. Add session store connectivity monitoring/alerting
+3. Configure rate limiting on login endpoint
+4. Add password complexity requirements
+5. Implement password reset functionality
+6. Add email verification for new users
+7. Configure MySQL connection pool limits
+8. Set up automated database backups
+9. Implement audit logging for admin actions
+10. Add two-factor authentication option
