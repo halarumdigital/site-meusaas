@@ -2,10 +2,60 @@ import { config } from "dotenv";
 config();
 
 import express, { type Request, Response, NextFunction } from "express";
+import session from "express-session";
+import MySQLStoreFactory from "express-mysql-session";
+import mysql from "mysql2/promise";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 
+if (!process.env.SESSION_SECRET) {
+  console.error("ERRO CRÍTICO: SESSION_SECRET não está definido!");
+  console.error("Defina a variável de ambiente SESSION_SECRET antes de iniciar a aplicação.");
+  process.exit(1);
+}
+
+const MySQLStore = MySQLStoreFactory(session);
+
+const sessionStoreOptions = {
+  host: process.env.MYSQL_HOST,
+  port: parseInt(process.env.MYSQL_PORT || "3306"),
+  user: process.env.MYSQL_USER,
+  password: process.env.MYSQL_PASSWORD,
+  database: process.env.MYSQL_DATABASE,
+  clearExpired: true,
+  checkExpirationInterval: 900000,
+  expiration: 86400000 * 7,
+  createDatabaseTable: true,
+  schema: {
+    tableName: 'sessions',
+    columnNames: {
+      session_id: 'session_id',
+      expires: 'expires',
+      data: 'data'
+    }
+  }
+};
+
+const sessionStore = new MySQLStore(sessionStoreOptions);
+
 const app = express();
+
+app.set("trust proxy", 1);
+
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET,
+    store: sessionStore,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: process.env.NODE_ENV === "production",
+      httpOnly: true,
+      maxAge: 1000 * 60 * 60 * 24 * 7,
+      sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
+    },
+  })
+);
 
 declare module 'http' {
   interface IncomingMessage {
