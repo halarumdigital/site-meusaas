@@ -5,18 +5,20 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider } from "@/components/ui/sidebar";
-import { Home, Users, LogOut, UserPlus, Trash2, Settings, Video, HelpCircle, UserCircle, CreditCard, Code2 } from "lucide-react";
+import { Home, Users, LogOut, Settings, Video as VideoIcon, Trash2, Plus, HelpCircle, UserCircle, CreditCard, Code2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { insertUserSchema, type InsertUser } from "@shared/schema";
+import { insertVideoSchema, type InsertVideo, type Video } from "@shared/schema";
 
 function AppSidebar() {
   const [, setLocation] = useLocation();
@@ -40,7 +42,7 @@ function AppSidebar() {
     { title: "Usuários", icon: Users, url: "/dashboard" },
     { title: "Clientes", icon: UserCircle, url: "/customers" },
     { title: "Assinaturas", icon: CreditCard, url: "/subscriptions" },
-    { title: "Vídeos", icon: Video, url: "/videos" },
+    { title: "Vídeos", icon: VideoIcon, url: "/videos" },
     { title: "FAQ", icon: HelpCircle, url: "/faqs" },
     { title: "Scripts", icon: Code2, url: "/scripts" },
     { title: "Configurações", icon: Settings, url: "/settings" },
@@ -89,15 +91,7 @@ type AuthUser = {
   };
 };
 
-type UserData = {
-  id: number;
-  name: string;
-  email: string;
-  role: string;
-  createdAt: string;
-};
-
-export default function Dashboard() {
+export default function VideosPage() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -106,8 +100,8 @@ export default function Dashboard() {
     queryKey: ["/api/auth/me"],
   });
 
-  const { data: users, isLoading: isLoadingUsers } = useQuery<UserData[]>({
-    queryKey: ["/api/users"],
+  const { data: videos, isLoading: isLoadingVideos } = useQuery<Video[]>({
+    queryKey: ["/api/videos"],
     enabled: !!currentUser?.user,
   });
 
@@ -117,61 +111,67 @@ export default function Dashboard() {
     }
   }, [isLoadingUser, currentUser, authError, setLocation]);
 
-  const form = useForm<InsertUser>({
-    resolver: zodResolver(insertUserSchema),
+  const form = useForm<InsertVideo>({
+    resolver: zodResolver(insertVideoSchema),
     defaultValues: {
-      name: "",
-      email: "",
-      password: "",
-      role: "user",
+      title: "",
+      description: "",
+      youtubeUrl: "",
+      isHeroVideo: 0,
     },
   });
 
-  const createUserMutation = useMutation({
-    mutationFn: async (data: InsertUser) => {
-      const res = await apiRequest("POST", "/api/users", data);
+  const createVideoMutation = useMutation({
+    mutationFn: async (data: InsertVideo) => {
+      const res = await apiRequest("POST", "/api/videos", data);
       return await res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/users"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/videos"] });
       toast({
-        title: "Usuário criado",
-        description: "O usuário foi criado com sucesso",
+        title: "Vídeo criado",
+        description: "O vídeo foi adicionado com sucesso",
       });
       setIsCreateDialogOpen(false);
       form.reset();
     },
     onError: () => {
       toast({
-        title: "Erro ao criar usuário",
+        title: "Erro ao criar vídeo",
         description: "Verifique os dados e tente novamente",
         variant: "destructive",
       });
     },
   });
 
-  const deleteUserMutation = useMutation({
-    mutationFn: async (userId: number) => {
-      await apiRequest("DELETE", `/api/users/${userId}`);
+  const deleteVideoMutation = useMutation({
+    mutationFn: async (videoId: number) => {
+      await apiRequest("DELETE", `/api/videos/${videoId}`);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/users"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/videos"] });
       toast({
-        title: "Usuário deletado",
-        description: "O usuário foi removido com sucesso",
+        title: "Vídeo deletado",
+        description: "O vídeo foi removido com sucesso",
       });
     },
     onError: () => {
       toast({
-        title: "Erro ao deletar usuário",
-        description: "Não foi possível remover o usuário",
+        title: "Erro ao deletar vídeo",
+        description: "Não foi possível remover o vídeo",
         variant: "destructive",
       });
     },
   });
 
-  function onSubmit(data: InsertUser) {
-    createUserMutation.mutate(data);
+  function onSubmit(data: InsertVideo) {
+    createVideoMutation.mutate(data);
+  }
+
+  function extractYoutubeId(url: string): string | null {
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : null;
   }
 
   if (isLoadingUser) {
@@ -211,64 +211,77 @@ export default function Dashboard() {
         <main className="flex-1 overflow-auto p-6">
           <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold" data-testid="text-dashboard-title">
-                Gerenciamento de Usuários
+              <h1 className="text-3xl font-bold" data-testid="text-videos-title">
+                Gerenciamento de Vídeos
               </h1>
               <p className="text-muted-foreground">
-                Bem-vindo, {currentUser.user.name}
+                Gerencie os vídeos exibidos na página inicial
               </p>
             </div>
             <Button
               onClick={() => setIsCreateDialogOpen(true)}
-              data-testid="button-create-user"
+              data-testid="button-create-video"
             >
-              <UserPlus className="mr-2 h-4 w-4" />
-              Novo Usuário
+              <Plus className="mr-2 h-4 w-4" />
+              Novo Vídeo
             </Button>
           </div>
 
           <Card>
             <CardHeader>
-              <CardTitle>Usuários Cadastrados</CardTitle>
+              <CardTitle>Vídeos Cadastrados</CardTitle>
               <CardDescription>
-                Gerencie os usuários do sistema
+                Vídeos exibidos na seção "Veja o Sistema em Ação"
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {isLoadingUsers ? (
+              {isLoadingVideos ? (
                 <p>Carregando...</p>
               ) : (
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Nome</TableHead>
-                      <TableHead>Email</TableHead>
-                      <TableHead>Função</TableHead>
+                      <TableHead>Título</TableHead>
+                      <TableHead>Descrição</TableHead>
+                      <TableHead>Preview</TableHead>
+                      <TableHead>Status</TableHead>
                       <TableHead>Data de Criação</TableHead>
                       <TableHead className="text-right">Ações</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {users?.map((user) => (
-                      <TableRow key={user.id} data-testid={`row-user-${user.id}`}>
-                        <TableCell className="font-medium" data-testid={`text-name-${user.id}`}>
-                          {user.name}
+                    {videos?.map((video) => (
+                      <TableRow key={video.id} data-testid={`row-video-${video.id}`}>
+                        <TableCell className="font-medium" data-testid={`text-title-${video.id}`}>
+                          {video.title}
                         </TableCell>
-                        <TableCell data-testid={`text-email-${user.id}`}>{user.email}</TableCell>
+                        <TableCell className="max-w-md truncate" data-testid={`text-description-${video.id}`}>
+                          {video.description}
+                        </TableCell>
                         <TableCell>
-                          <span
-                            className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${
-                              user.role === "admin"
-                                ? "bg-purple-100 text-purple-800"
-                                : "bg-blue-100 text-blue-800"
-                            }`}
-                            data-testid={`text-role-${user.id}`}
-                          >
-                            {user.role === "admin" ? "Administrador" : "Usuário"}
-                          </span>
+                          <div className="w-32 h-20 bg-gray-100 rounded overflow-hidden">
+                            {extractYoutubeId(video.youtubeUrl) && (
+                              <img
+                                src={`https://img.youtube.com/vi/${extractYoutubeId(video.youtubeUrl)}/mqdefault.jpg`}
+                                alt={video.title}
+                                className="w-full h-full object-cover"
+                              />
+                            )}
+                          </div>
                         </TableCell>
-                        <TableCell data-testid={`text-date-${user.id}`}>
-                          {format(new Date(user.createdAt), "dd 'de' MMMM 'de' yyyy", {
+                        <TableCell>
+                          {video.isHeroVideo === 1 ? (
+                            <Badge className="bg-purple-500 hover:bg-purple-600">
+                              Vídeo Hero
+                            </Badge>
+                          ) : (
+                            <Badge variant="secondary">
+                              Normal
+                            </Badge>
+                          )}
+                        </TableCell>
+                        <TableCell data-testid={`text-date-${video.id}`}>
+                          {format(new Date(video.createdAt), "dd 'de' MMMM 'de' yyyy", {
                             locale: ptBR,
                           })}
                         </TableCell>
@@ -276,9 +289,8 @@ export default function Dashboard() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            onClick={() => deleteUserMutation.mutate(user.id)}
-                            disabled={user.id === currentUser.user.id}
-                            data-testid={`button-delete-${user.id}`}
+                            onClick={() => deleteVideoMutation.mutate(video.id)}
+                            data-testid={`button-delete-${video.id}`}
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
@@ -296,21 +308,21 @@ export default function Dashboard() {
       <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Criar Novo Usuário</DialogTitle>
+            <DialogTitle>Adicionar Novo Vídeo</DialogTitle>
             <DialogDescription>
-              Preencha os dados do novo usuário
+              Adicione um vídeo do YouTube para ser exibido na página inicial
             </DialogDescription>
           </DialogHeader>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField
                 control={form.control}
-                name="name"
+                name="title"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Nome</FormLabel>
+                    <FormLabel>Título</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="João Silva" data-testid="input-name" />
+                      <Input {...field} placeholder="Demonstração Completa do Sistema" data-testid="input-title" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -318,16 +330,16 @@ export default function Dashboard() {
               />
               <FormField
                 control={form.control}
-                name="email"
+                name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
+                    <FormLabel>Descrição</FormLabel>
                     <FormControl>
-                      <Input
+                      <Textarea
                         {...field}
-                        type="email"
-                        placeholder="joao@exemplo.com"
-                        data-testid="input-new-email"
+                        placeholder="Veja todas as funcionalidades do painel administrativo..."
+                        rows={3}
+                        data-testid="input-description"
                       />
                     </FormControl>
                     <FormMessage />
@@ -336,40 +348,44 @@ export default function Dashboard() {
               />
               <FormField
                 control={form.control}
-                name="password"
+                name="youtubeUrl"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Senha</FormLabel>
+                    <FormLabel>URL do YouTube</FormLabel>
                     <FormControl>
                       <Input
                         {...field}
-                        type="password"
-                        placeholder="Mínimo 6 caracteres"
-                        data-testid="input-new-password"
+                        placeholder="https://www.youtube.com/watch?v=..."
+                        data-testid="input-youtube-url"
                       />
                     </FormControl>
+                    <FormDescription>
+                      Cole o link completo do vídeo no YouTube
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
               />
               <FormField
                 control={form.control}
-                name="role"
+                name="isHeroVideo"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Função</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger data-testid="select-role">
-                          <SelectValue placeholder="Selecione a função" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="user">Usuário</SelectItem>
-                        <SelectItem value="admin">Administrador</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value === 1}
+                        onCheckedChange={(checked) => field.onChange(checked ? 1 : 0)}
+                        data-testid="checkbox-hero-video"
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel>
+                        Exibir na Hero Section
+                      </FormLabel>
+                      <FormDescription>
+                        Este vídeo será exibido na seção principal da página inicial
+                      </FormDescription>
+                    </div>
                   </FormItem>
                 )}
               />
@@ -384,10 +400,10 @@ export default function Dashboard() {
                 </Button>
                 <Button
                   type="submit"
-                  disabled={createUserMutation.isPending}
+                  disabled={createVideoMutation.isPending}
                   data-testid="button-submit"
                 >
-                  {createUserMutation.isPending ? "Criando..." : "Criar Usuário"}
+                  {createVideoMutation.isPending ? "Adicionando..." : "Adicionar Vídeo"}
                 </Button>
               </DialogFooter>
             </form>
