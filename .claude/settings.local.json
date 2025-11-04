@@ -7,7 +7,8 @@
       "Bash(findstr:*)",
       "Bash(npm run db:push:*)",
       "Bash(tsx:*)",
-      "Bash(npx tsx:*)"
+      "Bash(npx tsx:*)",
+      "Bash(mysql:*)"
     ],
     "deny": [],
     "ask": []

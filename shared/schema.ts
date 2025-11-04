@@ -44,6 +44,7 @@ export const customers = mysqlTable("customers", {
   asaasCustomerId: varchar("asaas_customer_id", { length: 255 }).notNull().unique(),
   name: varchar("name", { length: 255 }).notNull(),
   email: varchar("email", { length: 255 }).notNull(),
+  password: varchar("password", { length: 255 }),
   cpfCnpj: varchar("cpf_cnpj", { length: 20 }).notNull(),
   phone: varchar("phone", { length: 20 }).notNull(),
   postalCode: varchar("postal_code", { length: 10 }),
@@ -131,6 +132,13 @@ export const insertCustomerSchema = createInsertSchema(customers, {
 
 export const selectCustomerSchema = createSelectSchema(customers);
 
+export const updateCustomerSchema = z.object({
+  email: z.string().email("Email inválido").optional(),
+  password: z.string().min(6, "Senha deve ter no mínimo 6 caracteres").optional(),
+}).refine(data => data.email || data.password, {
+  message: "Pelo menos email ou senha deve ser fornecido",
+});
+
 export const insertSubscriptionSchema = createInsertSchema(subscriptions).omit({
   id: true,
   createdAt: true,
@@ -143,6 +151,7 @@ export const createSubscriptionSchema = z.object({
   // Dados pessoais
   name: z.string().min(3, "Nome completo é obrigatório"),
   email: z.string().email("Email inválido"),
+  password: z.string().min(6, "Senha deve ter no mínimo 6 caracteres"),
   cpfCnpj: z.string().min(11, "CPF/CNPJ é obrigatório"),
   phone: z.string().min(10, "Telefone é obrigatório"),
   postalCode: z.string().optional(),
@@ -180,6 +189,7 @@ export type InsertFaq = z.infer<typeof insertFaqSchema>;
 export type Faq = typeof faqs.$inferSelect;
 export type InsertCustomer = z.infer<typeof insertCustomerSchema>;
 export type Customer = typeof customers.$inferSelect;
+export type UpdateCustomer = z.infer<typeof updateCustomerSchema>;
 export type InsertSubscription = z.infer<typeof insertSubscriptionSchema>;
 export type Subscription = typeof subscriptions.$inferSelect;
 export type CreateSubscription = z.infer<typeof createSubscriptionSchema>;

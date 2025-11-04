@@ -12,6 +12,8 @@ import Faqs from "@/pages/faqs";
 import Customers from "@/pages/customers";
 import Subscriptions from "@/pages/subscriptions";
 import Scripts from "@/pages/scripts";
+import CustomerLogin from "@/pages/customer-login";
+import CustomerDashboard from "@/pages/customer-dashboard";
 import NotFound from "@/pages/not-found";
 import { useEffect } from "react";
 import type { Settings as SettingsType } from "@shared/schema";
@@ -28,6 +30,8 @@ function Router() {
       <Route path="/customers" component={Customers}/>
       <Route path="/subscriptions" component={Subscriptions}/>
       <Route path="/scripts" component={Scripts}/>
+      <Route path="/customer/login" component={CustomerLogin}/>
+      <Route path="/customer/dashboard" component={CustomerDashboard}/>
       <Route component={NotFound} />
     </Switch>
   );

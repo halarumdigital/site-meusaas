@@ -1,16 +1,20 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useLocation } from "wouter";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider } from "@/components/ui/sidebar";
-import { Home, Users as UsersIcon, LogOut, Settings, Video, HelpCircle, UserCircle, CreditCard, Code2 } from "lucide-react";
+import { Home, Users as UsersIcon, LogOut, Settings, Video, HelpCircle, UserCircle, CreditCard, Code2, Pencil } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import type { Customer, Subscription } from "@shared/schema";
 
 function AppSidebar() {
@@ -93,6 +97,10 @@ type CustomerWithSubscription = Customer & {
 export default function CustomersPage() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
+  const queryClient = useQueryClient();
+  const [editingCustomer, setEditingCustomer] = useState<CustomerWithSubscription | null>(null);
+  const [editEmail, setEditEmail] = useState("");
+  const [editPassword, setEditPassword] = useState("");
 
   const { data: currentUser, isLoading: isLoadingUser, error: authError } = useQuery<AuthUser>({
     queryKey: ["/api/auth/me"],
@@ -102,6 +110,62 @@ export default function CustomersPage() {
     queryKey: ["/api/customers"],
     enabled: !!currentUser?.user,
   });
+
+  const updateCustomerMutation = useMutation({
+    mutationFn: async ({ id, email, password }: { id: number; email?: string; password?: string }) => {
+      const updateData: { email?: string; password?: string } = {};
+      if (email) updateData.email = email;
+      if (password) updateData.password = password;
+
+      return await apiRequest("PATCH", `/api/customers/${id}`, updateData);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/customers"] });
+      toast({
+        title: "Cliente atualizado",
+        description: "Os dados do cliente foram atualizados com sucesso",
+      });
+      handleCloseEditDialog();
+    },
+    onError: () => {
+      toast({
+        title: "Erro ao atualizar cliente",
+        description: "Não foi possível atualizar os dados do cliente",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleEditClick = (customer: CustomerWithSubscription) => {
+    setEditingCustomer(customer);
+    setEditEmail(customer.email);
+    setEditPassword("");
+  };
+
+  const handleCloseEditDialog = () => {
+    setEditingCustomer(null);
+    setEditEmail("");
+    setEditPassword("");
+  };
+
+  const handleSaveEdit = () => {
+    if (!editingCustomer) return;
+
+    if (!editEmail && !editPassword) {
+      toast({
+        title: "Erro de validação",
+        description: "Preencha pelo menos um campo para atualizar",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    updateCustomerMutation.mutate({
+      id: editingCustomer.id,
+      email: editEmail !== editingCustomer.email ? editEmail : undefined,
+      password: editPassword || undefined,
+    });
+  };
 
   useEffect(() => {
     if (!isLoadingUser && (!currentUser || authError)) {
@@ -204,9 +268,8 @@ export default function CustomersPage() {
                       <TableHead>Email</TableHead>
                       <TableHead>CPF/CNPJ</TableHead>
                       <TableHead>Telefone</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Próximo Vencimento</TableHead>
                       <TableHead>Data de Cadastro</TableHead>
+                      <TableHead className="text-right">Ações</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -224,24 +287,18 @@ export default function CustomersPage() {
                         <TableCell data-testid={`text-phone-${customer.id}`}>
                           {customer.phone}
                         </TableCell>
-                        <TableCell data-testid={`badge-status-${customer.id}`}>
-                          {customer.hasActiveSubscription ? (
-                            <Badge className="bg-green-500 hover:bg-green-600">
-                              Assinatura Ativa
-                            </Badge>
-                          ) : (
-                            <Badge variant="secondary">
-                              Sem Assinatura
-                            </Badge>
-                          )}
-                        </TableCell>
-                        <TableCell data-testid={`text-due-date-${customer.id}`}>
-                          {customer.activeSubscription
-                            ? format(new Date(customer.activeSubscription.nextDueDate), "dd/MM/yyyy", { locale: ptBR })
-                            : "-"}
-                        </TableCell>
                         <TableCell data-testid={`text-created-${customer.id}`}>
                           {format(new Date(customer.createdAt), "dd/MM/yyyy", { locale: ptBR })}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleEditClick(customer)}
+                            data-testid={`button-edit-${customer.id}`}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -254,6 +311,53 @@ export default function CustomersPage() {
               )}
             </CardContent>
           </Card>
+
+          <Dialog open={!!editingCustomer} onOpenChange={(open) => !open && handleCloseEditDialog()}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Editar Cliente</DialogTitle>
+                <DialogDescription>
+                  Atualize o email e/ou senha do cliente {editingCustomer?.name}
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <Label htmlFor="edit-email">Email</Label>
+                  <Input
+                    id="edit-email"
+                    type="email"
+                    value={editEmail}
+                    onChange={(e) => setEditEmail(e.target.value)}
+                    placeholder="email@exemplo.com"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="edit-password">Nova Senha</Label>
+                  <Input
+                    id="edit-password"
+                    type="password"
+                    value={editPassword}
+                    onChange={(e) => setEditPassword(e.target.value)}
+                    placeholder="Deixe em branco para não alterar"
+                  />
+                  <p className="text-sm text-muted-foreground">
+                    Mínimo de 6 caracteres
+                  </p>
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={handleCloseEditDialog}>
+                  Cancelar
+                </Button>
+                <Button
+                  onClick={handleSaveEdit}
+                  disabled={updateCustomerMutation.isPending}
+                >
+                  {updateCustomerMutation.isPending ? "Salvando..." : "Salvar"}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </main>
       </div>
     </SidebarProvider>

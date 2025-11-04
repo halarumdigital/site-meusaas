@@ -1,8 +1,8 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { getDb } from "./db";
-import { users, insertUserSchema, loginSchema, settings, insertSettingsSchema, videos, insertVideoSchema, faqs, insertFaqSchema, customers, subscriptions, createSubscriptionSchema } from "@shared/schema";
-import { requireAuth, requireAdmin } from "./auth";
+import { users, insertUserSchema, loginSchema, settings, insertSettingsSchema, videos, insertVideoSchema, faqs, insertFaqSchema, customers, subscriptions, createSubscriptionSchema, updateCustomerSchema } from "@shared/schema";
+import { requireAuth, requireAdmin, requireCustomerAuth } from "./auth";
 import bcrypt from "bcryptjs";
 import { eq } from "drizzle-orm";
 import multer from "multer";
@@ -45,7 +45,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { email, password } = loginSchema.parse(req.body);
       const db = await getDb();
-      
+
       const [user] = await db
         .select()
         .from(users)
@@ -57,13 +57,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const isValidPassword = await bcrypt.compare(password, user.password);
-      
+
       if (!isValidPassword) {
         return res.status(401).json({ message: "Email ou senha inválidos" });
       }
 
       req.session.userId = user.id;
-      
+      req.session.userType = "admin";
+
       const { password: _, ...userWithoutPassword } = user;
       res.json({ user: userWithoutPassword });
     } catch (error) {
@@ -83,6 +84,83 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/auth/me", requireAuth, async (req, res) => {
     res.json({ user: req.user });
+  });
+
+  // Rotas de autenticação de clientes
+  app.post("/api/customer/auth/login", async (req, res) => {
+    try {
+      const { email, password } = loginSchema.parse(req.body);
+      const db = await getDb();
+
+      const [customer] = await db
+        .select()
+        .from(customers)
+        .where(eq(customers.email, email))
+        .limit(1);
+
+      if (!customer || !customer.password) {
+        return res.status(401).json({ message: "Email ou senha inválidos" });
+      }
+
+      const isValidPassword = await bcrypt.compare(password, customer.password);
+
+      if (!isValidPassword) {
+        return res.status(401).json({ message: "Email ou senha inválidos" });
+      }
+
+      req.session.userId = customer.id;
+      req.session.userType = "customer";
+
+      const { password: _, ...customerWithoutPassword } = customer;
+      res.json({ customer: customerWithoutPassword });
+    } catch (error) {
+      console.error("Customer login error:", error);
+      res.status(400).json({ message: "Erro ao fazer login" });
+    }
+  });
+
+  app.get("/api/customer/auth/me", requireCustomerAuth, async (req, res) => {
+    res.json({ customer: req.customer });
+  });
+
+  app.get("/api/customer/dashboard", requireCustomerAuth, async (req, res) => {
+    try {
+      const db = await getDb();
+
+      // Buscar dados do cliente
+      const [customer] = await db
+        .select()
+        .from(customers)
+        .where(eq(customers.id, req.customer!.id))
+        .limit(1);
+
+      if (!customer) {
+        return res.status(404).json({ message: "Cliente não encontrado" });
+      }
+
+      // Buscar assinaturas do cliente
+      const customerSubscriptions = await db
+        .select()
+        .from(subscriptions)
+        .where(eq(subscriptions.customerId, customer.id));
+
+      // Encontrar assinatura ativa
+      const activeSubscription = customerSubscriptions.find(
+        sub => sub.status === "ACTIVE"
+      );
+
+      const { password: _, ...customerWithoutPassword } = customer;
+
+      res.json({
+        customer: customerWithoutPassword,
+        subscriptions: customerSubscriptions,
+        activeSubscription: activeSubscription || null,
+        hasActiveSubscription: !!activeSubscription,
+      });
+    } catch (error) {
+      console.error("Error fetching customer dashboard:", error);
+      res.status(500).json({ message: "Erro ao buscar dados do dashboard" });
+    }
   });
 
   app.get("/api/users", requireAuth, requireAdmin, async (req, res) => {
@@ -429,6 +507,70 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Atualizar cliente (email e senha)
+  app.patch("/api/customers/:id", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const customerId = parseInt(req.params.id);
+      const updateData = updateCustomerSchema.parse(req.body);
+      const db = await getDb();
+
+      // Verificar se cliente existe
+      const [existingCustomer] = await db
+        .select()
+        .from(customers)
+        .where(eq(customers.id, customerId))
+        .limit(1);
+
+      if (!existingCustomer) {
+        return res.status(404).json({ message: "Cliente não encontrado" });
+      }
+
+      // Preparar dados para atualização
+      const updateFields: any = {};
+
+      if (updateData.email) {
+        updateFields.email = updateData.email;
+      }
+
+      if (updateData.password) {
+        updateFields.password = await bcrypt.hash(updateData.password, 10);
+      }
+
+      // Atualizar cliente
+      await db
+        .update(customers)
+        .set(updateFields)
+        .where(eq(customers.id, customerId));
+
+      // Buscar cliente atualizado (sem retornar senha)
+      const [updatedCustomer] = await db
+        .select({
+          id: customers.id,
+          asaasCustomerId: customers.asaasCustomerId,
+          name: customers.name,
+          email: customers.email,
+          cpfCnpj: customers.cpfCnpj,
+          phone: customers.phone,
+          postalCode: customers.postalCode,
+          address: customers.address,
+          addressNumber: customers.addressNumber,
+          complement: customers.complement,
+          province: customers.province,
+          city: customers.city,
+          state: customers.state,
+          createdAt: customers.createdAt,
+        })
+        .from(customers)
+        .where(eq(customers.id, customerId))
+        .limit(1);
+
+      res.json(updatedCustomer);
+    } catch (error) {
+      console.error("Error updating customer:", error);
+      res.status(400).json({ message: "Erro ao atualizar cliente" });
+    }
+  });
+
   // Listar todas as assinaturas com dados do cliente
   app.get("/api/subscriptions", requireAuth, requireAdmin, async (req, res) => {
     try {
@@ -521,10 +663,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // 2. Salvar cliente no banco
       console.log("Salvando cliente no banco...");
+      const hashedPassword = await bcrypt.hash(subscriptionData.password, 10);
       const [newCustomer] = await db.insert(customers).values({
         asaasCustomerId: asaasCustomer.id,
         name: subscriptionData.name,
         email: subscriptionData.email,
+        password: hashedPassword,
         cpfCnpj: subscriptionData.cpfCnpj,
         phone: subscriptionData.phone,
         postalCode: subscriptionData.postalCode || null,

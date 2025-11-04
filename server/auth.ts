@@ -1,12 +1,13 @@
 import { Request, Response, NextFunction } from "express";
 import { getDb } from "./db";
-import { users } from "@shared/schema";
+import { users, customers } from "@shared/schema";
 import { eq } from "drizzle-orm";
 import "express-session";
 
 declare module "express-session" {
   interface SessionData {
     userId?: number;
+    userType?: "admin" | "customer";
   }
 }
 
@@ -18,6 +19,13 @@ declare global {
         email: string;
         name: string;
         role: string;
+      };
+      customer?: {
+        id: number;
+        email: string;
+        name: string;
+        cpfCnpj: string;
+        phone: string;
       };
     }
   }
@@ -58,4 +66,35 @@ export function requireAdmin(req: Request, res: Response, next: NextFunction) {
     return res.status(403).json({ message: "Acesso negado" });
   }
   next();
+}
+
+export async function requireCustomerAuth(req: Request, res: Response, next: NextFunction) {
+  if (!req.session?.userId || req.session.userType !== "customer") {
+    return res.status(401).json({ message: "Não autorizado" });
+  }
+
+  try {
+    const db = await getDb();
+    const [customer] = await db
+      .select({
+        id: customers.id,
+        email: customers.email,
+        name: customers.name,
+        cpfCnpj: customers.cpfCnpj,
+        phone: customers.phone,
+      })
+      .from(customers)
+      .where(eq(customers.id, req.session.userId))
+      .limit(1);
+
+    if (!customer) {
+      return res.status(401).json({ message: "Cliente não encontrado" });
+    }
+
+    req.customer = customer;
+    next();
+  } catch (error) {
+    console.error("Customer auth error:", error);
+    return res.status(500).json({ message: "Erro na autenticação" });
+  }
 }

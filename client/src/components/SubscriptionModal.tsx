@@ -14,6 +14,7 @@ import type { Settings } from "@shared/schema";
 const personalDataSchema = z.object({
   name: z.string().min(3, "Nome completo é obrigatório"),
   email: z.string().email("Email inválido"),
+  password: z.string().min(6, "Senha deve ter no mínimo 6 caracteres"),
   cpfCnpj: z.string().min(11, "CPF/CNPJ é obrigatório"),
   phone: z.string().min(10, "Telefone é obrigatório"),
   postalCode: z.string().optional(),
@@ -56,6 +57,7 @@ export function SubscriptionModal({ isOpen, onClose, value = 297 }: Subscription
     defaultValues: {
       name: "",
       email: "",
+      password: "",
       cpfCnpj: "",
       phone: "",
       postalCode: "",
@@ -215,6 +217,20 @@ export function SubscriptionModal({ isOpen, onClose, value = 297 }: Subscription
 
                 <FormField
                   control={personalForm.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Senha *</FormLabel>
+                      <FormControl>
+                        <Input {...field} type="password" placeholder="Mínimo 6 caracteres" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={personalForm.control}
                   name="cpfCnpj"
                   render={({ field }) => (
                     <FormItem>
@@ -235,76 +251,6 @@ export function SubscriptionModal({ isOpen, onClose, value = 297 }: Subscription
                       <FormLabel>Telefone *</FormLabel>
                       <FormControl>
                         <Input {...field} placeholder="(11) 99999-9999" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={personalForm.control}
-                  name="postalCode"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>CEP</FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder="00000-000" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={personalForm.control}
-                  name="address"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Endereço</FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder="Rua, Avenida..." />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={personalForm.control}
-                  name="addressNumber"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Número</FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder="123" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={personalForm.control}
-                  name="city"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Cidade</FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder="São Paulo" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={personalForm.control}
-                  name="state"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Estado</FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder="SP" maxLength={2} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
